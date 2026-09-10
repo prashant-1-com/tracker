@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prashant's Personal Growth Tracker</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--text:#18202a;--muted:#697586;--line:#e5e7eb;--accent:#4f46e5;--good:#16a34a;--bad:#dc2626;--warn:#d97706}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);font-family:Arial,sans-serif;color:var(--text)}
+header{background:linear-gradient(135deg,#111827,#4338ca);color:white;padding:28px 18px}
+.wrap{max-width:1100px;margin:auto}.top{display:flex;justify-content:space-between;gap:15px;align-items:center;flex-wrap:wrap}
+h1{margin:0 0 7px;font-size:28px}.sub{opacity:.85}
+button,input,select{font:inherit} button{border:0;border-radius:10px;padding:10px 14px;cursor:pointer;background:var(--accent);color:#fff;font-weight:600}
+button.secondary{background:#eef2ff;color:#3730a3} button.danger{background:#fee2e2;color:#991b1b}
+main{padding:20px 14px 50px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 3px 12px #00000008}
+.metric{font-size:27px;font-weight:800;margin-top:6px}.label{color:var(--muted);font-size:13px}
+section{margin-top:18px}.section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+h2{font-size:18px;margin:0}.controls{display:flex;gap:8px;flex-wrap:wrap}
+.date{padding:9px;border:1px solid var(--line);border-radius:9px;background:white}
+.checkgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.task{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.task input{width:19px;height:19px;accent-color:var(--accent)} .task.done{background:#f0fdf4;border-color:#bbf7d0}
+.task small{display:block;color:var(--muted);margin-top:2px}
+.progressbar{height:12px;background:#e5e7eb;border-radius:99px;overflow:hidden}.fill{height:100%;background:var(--accent);width:0%;transition:.3s}
+.chartbox{height:260px;position:relative}.bars{height:210px;display:flex;align-items:end;gap:8px;border-bottom:1px solid var(--line);padding:10px 4px 0}
+.barcol{flex:1;height:100%;display:flex;align-items:end;justify-content:center}.bar{width:70%;max-width:45px;background:var(--accent);border-radius:7px 7px 0 0;min-height:2px}.barlabel{font-size:10px;color:var(--muted);margin-top:5px;text-align:center}
+.legend{font-size:12px;color:var(--muted);margin-top:8px}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:14px}.insight{padding:12px;border-radius:11px;margin:8px 0}.good{background:#f0fdf4;color:#166534}.bad{background:#fef2f2;color:#991b1b}.warn{background:#fffbeb;color:#92400e}
+textarea{width:100%;min-height:100px;border:1px solid var(--line);border-radius:10px;padding:10px;resize:vertical}
+table{width:100%;border-collapse:collapse}th,td{padding:9px;border-bottom:1px solid var(--line);text-align:left;font-size:13px}th{color:var(--muted)}
+footer{text-align:center;color:var(--muted);font-size:12px;margin-top:25px}
+@media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr)}.twocol,.checkgrid{grid-template-columns:1fr}}
+@media(max-width:500px){.grid{grid-template-columns:1fr 1fr}.metric{font-size:22px}h1{font-size:23px}}
+</style>
+
+<style>
+#routineSection{margin-top:24px}
+.section-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+.section-head h2{margin:4px 0 0}
+.eyebrow{font-size:11px;letter-spacing:1.5px;opacity:.65;font-weight:800}
+#routineDay{padding:10px 12px;border-radius:10px;border:1px solid rgba(127,127,127,.25);background:inherit;color:inherit}
+.routine-list{display:grid;gap:8px}
+.routine-row{display:grid;grid-template-columns:105px 1fr;gap:12px;padding:11px 12px;border-radius:10px;background:rgba(127,127,127,.07)}
+.routine-key{font-weight:700}
+.routine-time{font-weight:700;opacity:.75}
+.routine-task{line-height:1.4}
+.routine-footer{margin-top:14px;padding:12px;border-radius:10px;font-weight:700;background:rgba(127,127,127,.09)}
+@media(max-width:600px){.section-head{align-items:flex-start;flex-direction:column}.routine-row{grid-template-columns:88px 1fr;font-size:13px}}
+</style>
+
+</head>
+<body>
+<header><div class="wrap top">
+<div><h1>🚀 Personal Growth Tracker</h1><div class="sub">AI/ML • College • Research • Health • Discipline</div></div>
+<div class="controls"><button class="secondary" onclick="exportData()">Export Backup</button><button class="danger" onclick="resetAll()">Reset Data</button></div>
+</div></header>
+
+<main class="wrap">
+<section class="grid">
+<div class="card"><div class="label">Today's Completion</div><div class="metric" id="todayPct">0%</div></div>
+<div class="card"><div class="label">AI/ML This Week</div><div class="metric" id="aiHours">0h</div></div>
+<div class="card"><div class="label">Current Streak</div><div class="metric" id="streak">0 days</div></div>
+<div class="card"><div class="label">Weekly Score</div><div class="metric" id="weekScore">0%</div></div>
+</section>
+
+<section class="card">
+<div class="section-title"><h2>📅 Daily Tracker</h2><input class="date" type="date" id="date"></div>
+<div class="progressbar"><div class="fill" id="dayFill"></div></div>
+<p class="label" id="progressText">0 of 10 activities completed</p>
+<div class="checkgrid" id="tasks"></div>
+</section>
+
+<section class="twocol">
+<div class="card">
+<div class="section-title"><h2>🧠 Daily AI/ML Log</h2></div>
+<div class="controls">
+<input class="date" type="number" id="aiMinutes" min="0" placeholder="Minutes studied">
+<button onclick="saveAI()">Save</button>
+</div>
+<p class="label">Target: 180 minutes/day (3 hours)</p>
+<div class="progressbar"><div class="fill" id="aiFill"></div></div>
+<p id="aiText" class="label">0 / 180 min</p>
+</div>
+<div class="card">
+<div class="section-title"><h2>📝 Reflection</h2></div>
+<textarea id="reflection" placeholder="What did I learn? What went wrong? What will I improve tomorrow?"></textarea>
+<button onclick="saveReflection()">Save Reflection</button>
+</div>
+</section>
+
+<section class="card">
+<div class="section-title"><h2>📊 7-Day Progress</h2></div>
+<div class="chartbox"><div class="bars" id="bars"></div></div>
+<div class="legend">Daily completion percentage — saved automatically in your browser.</div>
+</section>
+
+<section class="twocol">
+<div class="card"><h2>🔎 Mistakes & Improvements</h2><div id="insights"></div></div>
+<div class="card"><h2>🏆 Weekly Summary</h2><div id="summary"></div></div>
+</section>
+
+<section class="card">
+<h2>📌 Your Core Rules</h2>
+<ul>
+<li>AI/ML: <b>3 focused hours/day</b>.</li>
+<li>Morning: learning/theory. Night: coding/project.</li>
+<li>College: daily revision + assignment blocks.</li>
+<li>Protect sleep; aim for a consistent bedtime.</li>
+<li>Don't chase perfection — target <b>80%+ consistency</b>.</li>
+<li>Use AI as a mentor/assistant, not as a replacement for understanding.</li>
+</ul>
+</section>
+
+<footer>All data stays in this browser using localStorage. No server or account required.</footer>
+</main>
+
+<script>
+const TASKS=[
+["wake","Wake up on time","Start the day as planned"],
+["exercise","Exercise / movement","20–30 min"],
+["aimorning","AI/ML morning block","90 min"],
+["collegeam","College study / assignment","80 min"],
+["collegeRev","College revision","20 min"],
+["tuition","Tuition","Teach + attend"],
+["ainight","AI/ML night block","90 min"],
+["collegepm","College assignment / study","60 min"],
+["planning","Plan tomorrow","10–20 min"],
+["sleep","Sleep on time","Protect recovery"]
+];
+const key=(d)=>"tracker_"+d;
+let selected=new Date().toISOString().slice(0,10);
+document.getElementById("date").value=selected;
+document.getElementById("date").addEventListener("change",e=>{selected=e.target.value;render();});
+
+function load(d=selected){return JSON.parse(localStorage.getItem(key(d))||'{"tasks":{},"ai":0,"reflection":""}')}
+function save(d,obj){localStorage.setItem(key(d),JSON.stringify(obj))}
+function render(){
+let x=load();
+document.getElementById("tasks").innerHTML=TASKS.map(([id,name,desc])=>`
+<label class="task ${x.tasks[id]?'done':''}"><input type="checkbox" ${x.tasks[id]?'checked':''} onchange="toggle('${id}',this.checked)"><span><b>${name}</b><small>${desc}</small></span></label>`).join("");
+let done=Object.values(x.tasks).filter(Boolean).length,pct=Math.round(done/TASKS.length*100);
+document.getElementById("todayPct").textContent=pct+"%"; document.getElementById("dayFill").style.width=pct+"%";
+document.getElementById("progressText").textContent=`${done} of ${TASKS.length} activities completed`;
+document.getElementById("aiMinutes").value=x.ai||"";
+document.getElementById("aiFill").style.width=Math.min(100,(x.ai||0)/180*100)+"%";
+document.getElementById("aiText").textContent=`${x.ai||0} / 180 min`;
+document.getElementById("reflection").value=x.reflection||"";
+renderWeek();
+}
+function toggle(id,v){let x=load();x.tasks[id]=v;save(selected,x);render()}
+function saveAI(){let x=load();x.ai=Number(document.getElementById("aiMinutes").value)||0;save(selected,x);render()}
+function saveReflection(){let x=load();x.reflection=document.getElementById("reflection").value;save(selected,x);renderWeek();alert("Reflection saved.");}
+function days(n=7){let arr=[];let d=new Date(selected+"T12:00:00");for(let i=n-1;i>=0;i--){let q=new Date(d);q.setDate(d.getDate()-i);arr.push(q.toISOString().slice(0,10))}return arr}
+function pctFor(d){let x=load(d),done=Object.values(x.tasks).filter(Boolean).length;return Math.round(done/TASKS.length*100)}
+function renderWeek(){
+let ds=days();document.getElementById("bars").innerHTML=ds.map(d=>{let p=pctFor(d);return `<div class="barcol" title="${d}: ${p}%"><div class="bar" style="height:${Math.max(2,p*1.9)}px"></div><div class="barlabel">${d.slice(5)}</div></div>`}).join("");
+let ai=ds.reduce((s,d)=>s+(load(d).ai||0),0);document.getElementById("aiHours").textContent=(ai/60).toFixed(1)+"h";
+let avg=Math.round(ds.reduce((s,d)=>s+pctFor(d),0)/ds.length);document.getElementById("weekScore").textContent=avg+"%";
+let st=0;for(let i=0;;i++){let d=new Date(selected+"T12:00:00");d.setDate(d.getDate()-i);if(pctFor(d)>=80)st++;else break;if(i>365)break}document.getElementById("streak").textContent=st+" day"+(st===1?"":"s");
+insights(ds,avg,ai);
+}
+function insights(ds,avg,ai){
+let low=ds.filter(d=>pctFor(d)<70).length;
+let aiDays=ds.filter(d=>(load(d).ai||0)>=180).length;
+let sleepMiss=ds.filter(d=>!load(d).tasks.sleep).length;
+let collegeMiss=ds.filter(d=>!load(d).tasks.collegeam || !load(d).tasks.collegepm).length;
+let arr=[];
+if(aiDays>=5)arr.push(`<div class="insight good">🔥 AI/ML consistency is strong: ${aiDays}/7 days hit 3 hours.</div>`);
+else arr.push(`<div class="insight warn">🧠 AI/ML needs attention: only ${aiDays}/7 days reached 3 hours. Protect the morning and night blocks.</div>`);
+if(sleepMiss>=3)arr.push(`<div class="insight bad">😴 Sleep was missed ${sleepMiss} days. Fixing sleep should be a priority because it affects learning quality.</div>`);
+if(collegeMiss>=3)arr.push(`<div class="insight warn">🎓 College work was incomplete on ${collegeMiss} days. Use the daily blocks before assignments pile up.</div>`);
+if(low>=3)arr.push(`<div class="insight bad">⚠️ ${low} days were below 70% completion. Look at what interrupted those days.</div>`);
+if(avg>=80)arr.push(`<div class="insight good">🏆 Weekly consistency is ${avg}%. Great — keep the system sustainable.</div>`);
+document.getElementById("insights").innerHTML=arr.join("")||'<div class="insight good">Start tracking for a few days and your patterns will appear here.</div>';
+document.getElementById("summary").innerHTML=`<p><b>7-day completion:</b> ${avg}%</p><p><b>AI/ML:</b> ${(ai/60).toFixed(1)} hours</p><p><b>3-hour AI/ML days:</b> ${aiDays}/7</p><p><b>Low-completion days:</b> ${low}/7</p><p class="label">The tracker gives rule-based feedback from your saved activity; it is not a medical or professional assessment.</p>`;
+}
+function exportData(){
+let out={};for(let i=0;i<365;i++){let d=new Date();d.setDate(d.getDate()-i);let ds=d.toISOString().slice(0,10),v=localStorage.getItem(key(ds));if(v)out[ds]=JSON.parse(v)}
+let blob=new Blob([JSON.stringify(out,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="my-growth-tracker-backup.json";a.click();URL.revokeObjectURL(a.href);
+}
+function resetAll(){if(confirm("Delete all tracker data from this browser?")){Object.keys(localStorage).filter(k=>k.startsWith("tracker_")).forEach(k=>localStorage.removeItem(k));render()}}
+render();
+</script>
+
+<section class="card" id="routineSection">
+  <div class="section-head">
+    <div>
+      <div class="eyebrow">MY ROUTINE</div>
+      <h2>Daily Routine 📅</h2>
+    </div>
+    <select id="routineDay" onchange="showRoutine()">
+      <option value="weekday">Monday–Friday</option>
+      <option value="saturday">Saturday</option>
+      <option value="sunday">Sunday</option>
+    </select>
+  </div>
+  <div id="routineContent"></div>
+</section>
+
+<script>
+const routines = {
+  weekday: [
+    ["6:00 AM","Wake up"],
+    ["6:00–6:30","Fresh + water + light exercise"],
+    ["6:30–7:00","Breakfast"],
+    ["7:00–8:30","🤖 AI/ML — Learning / Theory (90 min)"],
+    ["8:30–9:50","🎓 College study / assignment (80 min)"],
+    ["9:50–10:10","Get ready for college"],
+    ["10:10–10:30","Travel to college"],
+    ["10:30–4:30","🏫 College"],
+    ["4:30–4:50","Travel to hostel"],
+    ["4:50–5:20","Snack + rest"],
+    ["5:20–5:40","🎓 College revision (20 min)"],
+    ["5:40–6:00","Travel to tuition"],
+    ["6:00–7:00","👨‍🏫 Tuition"],
+    ["7:00–7:20","Return to hostel"],
+    ["7:20–8:00","🍽️ Dinner + family time"],
+    ["8:00–9:30","🤖 AI/ML — Coding / Project (90 min)"],
+    ["9:30–10:30","🎓 College assignment / study (60 min)"],
+    ["10:30–10:50","Free time"],
+    ["10:50–11:10","Plan tomorrow + prepare"],
+    ["11:15 PM","😴 Sleep"]
+  ],
+  saturday: [
+    ["6:30 AM","Wake up"],
+    ["6:30–7:00","Fresh + exercise"],
+    ["7:00–7:30","Breakfast"],
+    ["7:30–9:30","🤖 AI/ML — Deep learning (2 hrs)"],
+    ["9:45–12:15","🎓 College assignment (2.5 hrs)"],
+    ["12:15–1:15","Lunch + rest"],
+    ["1:15–2:45","🤖 AI/ML — Research (1.5 hrs)"],
+    ["3:00–5:00","🎓 College study / assignment (2 hrs)"],
+    ["5:00–5:40","Rest / free time"],
+    ["5:40–6:00","Travel to tuition"],
+    ["6:00–7:00","👨‍🏫 Tuition"],
+    ["7:00–7:20","Return to hostel"],
+    ["7:20–8:15","🍽️ Dinner"],
+    ["8:15–9:15","🤖 AI/ML — Project (1 hr)"],
+    ["9:15–11:15","Relax / personal time"],
+    ["11:15 PM","😴 Sleep"]
+  ],
+  sunday: [
+    ["7:00 AM","Wake up"],
+    ["7:00–8:00","Exercise + fresh + breakfast"],
+    ["8:00–10:00","🤖 AI/ML — Learning / coding (2 hrs)"],
+    ["10:00–11:00","Breakfast / rest"],
+    ["11:00–1:00","🎓 College assignment (2 hrs)"],
+    ["1:00–2:00","Lunch"],
+    ["2:00–3:00","Free time"],
+    ["3:00–4:00","🤖 AI/ML — Research / project (1 hr)"],
+    ["4:00–6:00","Friends / family / personal time"],
+    ["6:00–7:30","🎓 Next-week college preparation"],
+    ["7:30–8:30","🍽️ Dinner"],
+    ["8:30–9:00","Plan next week"],
+    ["9:00–11:15","Relax + sleep preparation"],
+    ["11:15 PM","😴 Sleep"]
+  ]
+};
+
+function showRoutine(){
+  const day = document.getElementById("routineDay").value;
+  const rows = routines[day];
+  document.getElementById("routineContent").innerHTML = `
+    <div class="routine-list">
+      ${rows.map((r,i)=>`
+        <div class="routine-row ${r[0].includes("AM") || r[0].includes("PM") ? "routine-key":""}">
+          <span class="routine-time">${r[0]}</span>
+          <span class="routine-task">${r[1]}</span>
+        </div>`).join("")}
+    </div>
+    <div class="routine-footer">
+      ${day === "weekday" ? "🎯 AI/ML target: exactly 3 hours/day • 🎓 College self-study: about 2h 40m" :
+        day === "saturday" ? "🔥 AI/ML: about 5 hours • 🎓 College work: about 4.5 hours" :
+        "🔥 AI/ML: 3 hours • 🎓 College preparation: about 3.5 hours"}
+    </div>`;
+}
+showRoutine();
+</script>
+</body>
+</html>
